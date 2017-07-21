@@ -1,37 +1,47 @@
 import { assert } from 'chai';
 import IqValidator from '../src/iqValidator';
 
-let emptyParamsInstance = () => new IqValidator();
-let invalidParamsInstance = () => new IqValidator(1, {});
+const validInstance = () => new IqValidator(new RegExp('ab+c', 'i'),[]);
 
 describe('IqValidator class.', () => {
   let iqValidator;
 
   it('should expose a public method called sanitise', () => {
-    iqValidator = emptyParamsInstance();
+    iqValidator = validInstance();
     assert(Reflect.has(iqValidator, 'sanitise'), 'Has sanitise method');
   });
 
-  it('should use default values empty constructor', () => {
-    iqValidator = emptyParamsInstance();
-    assert(iqValidator.mainRule === '', 'mainRule is empty string');
-    assert(Array.isArray(iqValidator.config) && iqValidator.config.length === 0, 'config is an empty array');
-  });
-
-  it('should use default values if wrong parameter types are passed to constructor', () => {
-    iqValidator = invalidParamsInstance();
-    assert(iqValidator.mainRule === '', 'mainRule is empty string');
-    assert(Array.isArray(iqValidator.config) && iqValidator.config.length === 0, 'config is an empty array');
+  describe('constructor', () => {
+    it('should throw an error if invalid \'mainRule\' param is passed', () => {
+      assert.throws(() => new IqValidator(1, []), /argument \'mainRule\'/, 'invalid or no error message thrown');
+      assert.throws(() => new IqValidator({}, []), /argument \'mainRule\'/, 'invalid or no error message thrown');
+      assert.throws(() => new IqValidator(null, []), /argument \'mainRule\'/, 'invalid or no error message thrown');
+      assert.throws(() => new IqValidator('', []), /argument \'mainRule\'/, 'invalid or no error message thrown');
+    });
+    it('should throw an error if invalid \'config\' param is passed', () => {
+      assert.throws(() => new IqValidator(new RegExp('ab+c', 'i'), {}), /argument \'config\'/, 'invalid or no error message thrown');
+      assert.throws(() => new IqValidator(new RegExp('ab+c', 'i'), ''), /argument \'config\'/, 'invalid or no error message thrown');
+      assert.throws(() => new IqValidator(new RegExp('ab+c', 'i'), 1), /argument \'config\'/, 'invalid or no error message thrown');
+      assert.throws(() => new IqValidator(new RegExp('ab+c', 'i')), /argument \'config\'/, 'invalid or no error message thrown');
+      assert.throws(() => new IqValidator(new RegExp('ab+c', 'i'), null), /argument \'config\'/, 'invalid or no error message thrown');
+    });
+    it('should throw an error if empty constructor is used', () => {
+      assert.throws(() => new IqValidator(), /argument/, 'invalid or no error message thrown');
+    });
   });
 
   describe('sanitise method', () => {
-    it('should default invalid params to empty string', () => {
-      iqValidator = emptyParamsInstance();
-      assert(iqValidator.sanitise({invalid:true}) === '', 'doesn\'t default to empty string');
+    it('should throw an error if invalid \'str\' param is passed', () => {
+      iqValidator = validInstance();
+      assert.throws(() => iqValidator.sanitise(), /argument \'str\'/, 'invalid or no error message thrown');
+      assert.throws(() => iqValidator.sanitise({}), /argument \'str\'/, 'invalid or no error message thrown');
+      assert.throws(() => iqValidator.sanitise(1), /argument \'str\'/, 'invalid or no error message thrown');
+      assert.throws(() => iqValidator.sanitise(null), /argument \'str\'/, 'invalid or no error message thrown');
     });
-    it('should return unchanges string if mainRule is empty or not defined', () => {
-      iqValidator = emptyParamsInstance();
-      assert(iqValidator.sanitise('testme') === 'testme', 'returns a different string');
+    it('should return the same str parameter value, if valid', () => {
+      iqValidator = validInstance();
+      const matchingValue = 'abbbbbC';
+      assert.equal(iqValidator.sanitise(matchingValue), matchingValue, 'invalid value returned');
     });
   });
 });
