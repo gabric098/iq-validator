@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import SanitiserConfig from './sanitiserConfig';
 
 export default class IqValidator {
 
@@ -14,12 +15,26 @@ export default class IqValidator {
    *      return str;
    *   }
    * }
+   * @throws {AssertionError} If the argument/s is/are invalid.
+   * @public
    */
   constructor(mainRule, config) {
     assert.equal(mainRule instanceof RegExp, true, 'argument \'mainRule\' must be a RegExp object');
-    assert.equal(Array.isArray(config), true, 'argument \'config\' must be an Array');
     this.mainRule = mainRule;
-    this.config = config;
+    this.config = new SanitiserConfig(config);
+  }
+
+  /**
+   * Tests a given string against the mainRule regex to check if it's valid
+   *
+   * @param {string} str the string to test against the mainRule regex
+   * @returns {boolean} true if the argument matches the mainRule
+   * @throws {AssertionError} If the argument is invalid.
+   * @public
+   */
+  isValid(str) {
+    assert.equal(typeof (str), 'string', 'argument \'str\' must be a string');
+    return this.mainRule.test(str);
   }
 
   /**
@@ -27,17 +42,25 @@ export default class IqValidator {
    * @param {string} str The string to validate and/or sanitise
    * @return {string|null} A string is returned if either the str parameter is valid or if one of
    * the sanitising functions have been able to make the string valid. Null is returned otherwise
+   * @throws {AssertionError} If the argument is invalid.
+   * @public
    */
   sanitise(str) {
     assert.equal(typeof (str), 'string', 'argument \'str\' must be a string');
-    const cfgIterator = this.config[Symbol.iterator]();
-    let testStr = str;
-    let currentCfg = cfgIterator.next();
-    while (!this.mainRule.test(testStr) && currentCfg) {
-      testStr = '';
-      currentCfg = cfgIterator.next();
-      return '';
+    if (this.isValid(str)) {
+      return str;
     }
-    return str;
+    let returnValue = null;
+    let testStr = str;
+    let currentCfg = this.config.next();
+    while (!this.isValid(testStr) && currentCfg) {
+      const currentRuleMatcher = new RegExp(currentCfg.regexp, currentCfg.flags);
+      if (currentRuleMatcher.test(testStr)) {
+        testStr = currentCfg.sanitiseFunction(testStr);
+        returnValue = testStr;
+      }
+      currentCfg = this.config.next();
+    }
+    return returnValue;
   }
 }
