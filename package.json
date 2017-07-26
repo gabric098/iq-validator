@@ -2,7 +2,7 @@
   "name": "iq-validator",
   "version": "0.0.1",
   "description": "An intelligent string validator with configurable sanitisation options.",
-  "main": "./lib/index.js",
+  "main": "./lib/IqValidator.js",
   "scripts": {
     "clean": "rimraf lib",
     "test": "cross-env BABEL_ENV=commonjs mocha --compilers js:babel-register --recursive",
