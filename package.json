@@ -1,6 +1,6 @@
 {
   "name": "iq-validator",
-  "version": "0.0.1",
+  "version": "0.0.0-semantically-released",
   "description": "An intelligent string validator with configurable sanitisation options.",
   "main": "./lib/IqValidator.js",
   "scripts": {
@@ -11,7 +11,8 @@
     "lint": "eslint src test",
     "build": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
     "prepublish": "npm run clean && npm run lint && npm run test && npm run build",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "files": [
     "lib",
@@ -19,13 +20,13 @@
   ],
   "keywords": [
     "node",
-    "string validator",
-    "string sanitiser"
+    "validator",
+    "sanitiser"
   ],
   "author": "Gabriele gabriele.antonini@gmail.com",
   "license": "MIT",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/gabric098/iq-validator/issues"
   },
   "homepage": "",
   "devDependencies": {
@@ -48,11 +49,16 @@
     "mocha": "^3.4.2",
     "rimraf": "^2.6.1",
     "sinon": "^2.3.8",
-    "sinon-chai": "^2.12.0"
+    "sinon-chai": "^2.12.0",
+    "semantic-release": "^6.3.6"
   },
   "config": {
     "commitizen": {
       "path": "node_modules/cz-conventional-changelog"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gabric098/iq-validator.git"
   }
 }
